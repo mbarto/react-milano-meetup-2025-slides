@@ -1015,39 +1015,32 @@ class: text-center pt-40 color-white
 
 <div class="absolute right-10 w-90 top-25 color-white" v-after>
   <h3 class="mb-5">Learnings</h3>
-  <span>We can create <span font-bold text-green>server actions</span> by:</span>
+  <span>We can create <span font-bold text-green>server functions</span> by:</span>
   <ul>    
     <li v-click="2">using the <span font-bold text-green>use server</span> directive</li>
-    <li v-click="3">declaring an <span font-bold text-green>async function</span> with a <span font-bold text-green>formData</span> argument</li>
-    <li v-click="4">declaring a <span font-bold text-green>post endpoint</span> to handle the action</li>
+    <li v-click="3">declaring an <span font-bold text-green>async function</span></li>
+    <li v-click="4">declaring a <span font-bold text-green>post endpoint</span> to handle the server functions</li>
     <li v-click="5">properly calling the <span font-bold text-green>action handler</span></li>
-    <li v-click="6">returning the <span font-bold text-green>action result</span> in the RSC payload</li>
+    <li v-click="6">returning the <span font-bold text-green>action result</span> as an RSC payload</li>
   </ul>
 </div>
 
 
 <div class="w-120 mt-10">
-```js {*|1|3-9|11|12-17|18-21|*}
+```js {*|1|3-6|8|9-12|13-14|*}
 "use server";
 
-export async function myAction(_, formData) {
+export async function fun() {
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  const text = formData.get("text");
-  if (text === "error")
-    return {status: "error", message: "Error: text is 'error'"};
-  return { status: "success", message: text };
+  return { status: "success", message: "Hello World!" };
 }
 
-server.post("/action", async (req, reply) => {
-    const serverReference = req.headers["rsc-action"];
+server.post("/functions", async (req, reply) => {
+    const serverReference = req.headers["rsc-function"];
     const [filepath, name] = serverReference.split("#");
-    const action = (await import(filepath))[name];
-    const formData = await req.formData();
-    const args = await decodeReply(formData, moduleBasePath);
-    const result = await action(...args);
-    const root = h(App, { item: result.message });
-    const payload = { root, returnValue: result };
-    const { pipe } = renderToPipeableStream(payload);
+    const fun = (await import(filepath))[name];
+    const result = await fun();
+    const { pipe } = renderToPipeableStream(result);
     pipe(reply.raw);
 });
 
@@ -1062,24 +1055,20 @@ server.post("/action", async (req, reply) => {
   <ul>    
     <li v-click="1">defining an async function to <span font-bold text-green>call server action(s)</span> and registering it in createFromFetch</li>
     <li v-click="2">calling the <span font-bold text-green>server endpoint</span> and using <span font-bold text-green>createFromFetch</span> on the result</li>
-    <li v-click="3">getting both the <span font-bold text-green>flight payload</span> and <span font-bold text-green>action result</span> and handling them properly</li>
   </ul>
 </div>
 
 
 <div class="w-120 mt-20">
-```js {*|1,14|2-7|8-10|*}
+```js {*|1,11|2-8|*}
 async function callServer(id, args) {
   const fetchPromise = fetch(`/action`, {
     method: "POST",
-    headers: { "rsc-action": id },
+    headers: { "rsc-function": id },
     body: await encodeReply(args),
   });
   const actionResponsePromise = createFromFetch(fetchPromise);
-  const { returnValue } = await actionResponsePromise;
-  updatePage(actionResponsePromise);
-
-  return returnValue;
+  return = await actionResponsePromise;
 }
 
 const initialContentPromise = createFromFetch(...,{callServer});
@@ -1090,50 +1079,42 @@ const initialContentPromise = createFromFetch(...,{callServer});
 
 ---
 
-<div class="absolute right-10 w-90 top-10 color-white">
+<div class="absolute right-10 w-100 top-5 color-white">
   <h3 class="mb-5">Learnings</h3>
   <span>We can <span font-bold text-green>connect</span> client and server by:</span>
   <ul>    
-    <li v-click="1">using the <span font-bold text-green>useActionState</span> hook in a <span font-bold text-green>form component</span></li>
-    <li v-click="2">using the hook result to <span font-bold text-green>create our forms</span></li>
-    <li v-click="3">properly using the form component and connecting it with the <span font-bold text-green>server action</span></li>
+    <li v-click="1">getting the <span font-bold text-green>server function</span> reference from a <span font-bold text-green>client component</span></li>
+    <li v-click="2">calling the function from <span font-bold text-green>an effect</span> and storing the result</li>
+    <li v-click="3">properly using the client component and connecting it with the <span font-bold text-green>server function</span></li>
   </ul>
   <span v-click="4">The flight payload will include:</span>
   <ul>    
-    <li v-click="5">the <span font-bold text-green>form</span> client component definition</li>
-    <li v-click="6">a section for the <span font-bold text-green>action</span> definition</li>
-    <li v-click="7">The usual <span font-bold text-green>DOM</span> that references both the <span font-bold text-green>form ($L2)</span> and the <span font-bold text-green>action function ($F3)</span></li>
+    <li v-click="5">the <span font-bold text-green>client component</span> definition</li>
+    <li v-click="6">a section for the <span font-bold text-green>function</span> definition</li>
+    <li v-click="7">The usual <span font-bold text-green>DOM</span> that references both the <span font-bold text-green>client component ($L2)</span> and the <span font-bold text-green>action function ($F3)</span></li>
   </ul>
 </div>
 
 
-<div class="w-120 -mt-5">
-```js {*|2-3|6-11|15-27|*}
-export const MyForm = ({ text, action }) => {
-  const [formState, formAction, isPending] = 
-    useActionState(action);
-  const [value, setValue] = useState(text);
-  return (<div style={{ opacity: isPending ? 0.6 : 1 }}>
-    <form action={formAction}>
-      <input required name="text" defaultValue={value}/>
-      {formState ? <div style={{
-        color: formState.status === "error" ? "red" : "green"
-        }}>{formState.status}</div> : null }
-    </form>
-    )
-}
+<div class="w-120 mt-5 -ml-5">
+```js {*|1,4|5-8|13-19|*}
+"use client";
+import { createElement as h, useState, useEffect } from "react";
 
-export async function myAction(_, formData) {
-  ...
-}
+export const MyClientComponent = ({ fun }) => {
+  const [result, setResult] = useState(null);
+  useEffect(() => {
+    fun().then(setResult);
+  }, [fun]);
 
-function App({ item = "" }) {
+  return <div>{result?.message}</div>;
+};
+
+import { fun } from "./server/functions"
+
+function App() {
   return (
-    <div>
-      <h1>Hello, world!</h1>
-      <MyForm text="placeholder", action={myAction}/>
-      <p>item: ${item}</p>
-    </div>
+      <MyComponent fun={fun}/>
   );
 }
 
@@ -1143,11 +1124,61 @@ function App({ item = "" }) {
 
 <div class="absolute w-220 bottom-5 right-15" v-click="4">
 ```json {*|1|2|3}
-2:I["./my-form-component.js",["./my-form-component.js"],"MyForm"]
-3:{"id":"actions.js#myAction","name":"myAction","env":"Server","location":["","server/actions.js"]}
-0:["$","div",null,{"children":[["$","$L2",null,{"text":"placeholder","action":"$F3"},"$1"]]},"$1"]
+2:I["./my-client-component.js",["./my-client-component.js"],"MyClient"]
+3:{"id":"functions.js#fun","name":"fun","env":"Server","location":["","server/function.js"]}
+0:["$","div",null,{"children":[["$","$L2",null,{"fun":"$F3"},"$1"]},"$1"]
 ```
 </div>
+
+---
+
+<div class="absolute right-10 w-100 top-5 color-white">
+  <h3 class="mb-5">Learnings</h3>
+  <span>We can use functions <span font-bold text-green>as form actions</span> by:</span>
+  <ul>    
+    <li v-click="1">using the <span font-bold text-green>useActionState hook</span> to transform a <span font-bold text-green>server funcion</span> to an <span font-bold text-green>action</span></li>
+    <li v-click="2">setting the server action as <span font-bold text-green>a form action</span></li>
+  </ul>
+  <span v-click="3">We can combine action call with <span font-bold text-green>page updates</span> by:</span>
+  <ul>    
+    <li v-click="4">returning <span font-bold text-green>dom</span> in the action payload</li>
+    <li v-click="5">extracting it to update the page in <span font-bold text-green>callServer</span></li>
+  </ul>
+</div>
+
+
+<div class="w-120 mt-5 -ml-5">
+```js {*|5-6|10|*|14-18|20-26|*}
+"use client";
+import { useState, useEffect } from "react";
+
+export const MyFormComponent = ({ text, action }) => {
+  const [formState, formAction, isPending] = 
+    useActionState(action);
+  const [value, setValue] = useState(text);
+  const inputRef = useRef(null);
+
+  return (<form action={formAction} />
+          <input ref={inputRef}/>
+        </form>);
+};
+
+server.post("/action", async (req, reply) => {
+  const root = <App item={result.message}/>);
+  const payload = { root, returnValue: result };
+});
+
+async function callServer(id, args) {
+  const fetchPromise = fetch(`/action`, ...);
+  const actionResponsePromise = createFromFetch(fetchPromise);
+  const { returnValue } = await actionResponsePromise;
+  updatePage(actionResponsePromise);
+  return returnValue;
+}
+
+```
+</div>
+
 
 ---
 layout: two-cols-header
