@@ -756,14 +756,16 @@ await server.listen({ port: 4000 });
   <span>The <span font-bold text-green>main</span> backend will:</span>
   <ul>    
     <li v-click="1">offer a <span font-bold text-green>pass-through</span> /rsc endpoint to <span font-bold text-green>delegate</span> to the rsc backend</li>
-    <li v-click="2">pregenerate static HTML using <span font-bold text-green>renderToString</span></li>
+    <li v-click="2">pregenerate static HTML using <span font-bold text-green>prerender</span></li>
     <li v-click="3">include also the initial <span font-bold text-green>RSC payload</span> for <span font-bold text-green>hydration</span></li>
   </ul>
 </div>
 
 
 <div class="w-120 -mt-5">
-```js {*|1-11|15|1-6,9,20-22}
+```js {*|3-13|1,17|3-8,11,22-24}
+import { prerender } from "react-dom/static.edge";
+
 async function fetchRsc(req, page) {
   const rscResponse = await fetch(
     `http://localhost:4000/rsc?page=${page}`
@@ -778,7 +780,7 @@ server.get("/rsc", async (req, reply) => {
 
 server.get("/", async (req, reply) => {
   const rscContent = await fetchRsc(req, 0);
-  let page = await renderToString(<App page={0}/>);
+  let page = await prerender(<App page={0}/>);
   const html = `<!doctype html>
 <html lang="en">
 <body>
@@ -854,7 +856,7 @@ class: text-center
 
 <ul class="color-white text-left">    
     <li>This makes RSC able to work as the <span font-bold text-green>classic SSR</span> was</li>
-    <li v-click>Why can't we use <span font-bold text-green>renderToPipableStream</span> and <span font-bold text-green>renderToString</span> in the <span font-bold text-green>same thread</span>? This remains a <span font-bold text-green>mystery</span> to me</li>
+    <li v-click>Why can't we use <span font-bold text-green>renderToPipableStream</span> and <span font-bold text-green>prerender</span> in the <span font-bold text-green>same thread</span>? This remains a <span font-bold text-green>mystery</span> to me</li>
 </ul>
 
 ---
