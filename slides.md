@@ -350,7 +350,7 @@ node --conditions=react-server server.js
 </div>
 
 <div class="w-120" v-click="1">
-```js {*|*|12-15|13-14|*}
+```js {*|*|2-3,13|14|*}
 import Fastify from "fastify";
 import { renderToPipeableStream } 
   from "react-server-dom-webpack/server";
@@ -1064,7 +1064,7 @@ server.post("/functions", async (req, reply) => {
 <div class="w-120 mt-20">
 ```js {*|1,11|2-8|*}
 async function callServer(id, args) {
-  const fetchPromise = fetch(`/action`, {
+  const fetchPromise = fetch(`/functions`, {
     method: "POST",
     headers: { "rsc-function": id },
     body: await encodeReply(args),
@@ -1101,7 +1101,7 @@ const initialContentPromise = createFromFetch(...,{callServer});
 <div class="w-120 mt-5 -ml-5">
 ```js {*|1,4|5-8|13-19|*}
 "use client";
-import { createElement as h, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 export const MyClientComponent = ({ fun }) => {
   const [result, setResult] = useState(null);
