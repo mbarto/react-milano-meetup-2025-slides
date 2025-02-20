@@ -77,6 +77,21 @@ hr {
 ## Only wrong answers
 
 ---
+layout: intro
+class: text-white
+---
+
+## Some (useful?) links
+<br/>
+<br/>
+<br/>
+<br/>
+
+### - Repository used during the talk: https://github.com/mbarto/rsc-experiments
+### - Slides: https://github.com/mbarto/react-milano-meetup-2025-slides
+
+
+---
 class: text-center pt-40 color-white
 ---
 
