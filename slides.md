@@ -1240,7 +1240,7 @@ class: text-white
  <li>Streaming</li>
  <li>Balance server and client work</li>
  <li>Extend the meaning of client and server</li>
- <li>Basic primitives → many different implementations (NextJS, Waku, Remix/React Router, TanStack Start)</li>
+ <li>Basic primitives → many different implementations (<a href="https://nextjs.org/">NextJS</a>, <a href="https://waku.gg/">Waku</a>, <a href="https://react-server.dev/">react-server</a>), others are coming (<a href="https://reactrouter.com/">React Router / Remix</a>, <a href="https://community.redwoodjs.com/t/react-server-components-rsc/5081">RedwoodJS</a>)</li>
 </v-clicks>
 
 ## Cons
