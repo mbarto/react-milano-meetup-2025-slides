@@ -1263,7 +1263,7 @@ class: text-white
 # More links to useful material
 
  - Repository used during the talk: https://github.com/mbarto/rsc-experiments
- - Slides: https://github.com/mbarto/react-day-berlin-2024-slides
+ - Slides: https://github.com/mbarto/react-milano-meetup-2025-slides
  - Where the learning journey started: https://github.com/epicweb-dev/react-server-components
  - The Rust rscx library: https://github.com/Pitasi/rscx
  - The RSC parser project: https://rsc-parser.vercel.app/
